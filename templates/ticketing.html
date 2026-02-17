@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Parking Ticket</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body class="bg-light">
+<div class="container mt-5 col-md-6">
+    <div class="card shadow-sm p-4 bg-white">
+        <h2 class="text-center mb-4">Parking Ticket</h2>
+
+        <div class="mb-2"><strong>Ticket ID:</strong> {{ticket.id}}</div>
+        <div class="mb-2"><strong>User:</strong> {{ticket.username}}</div>
+        <div class="mb-2"><strong>Plate Number:</strong> {{ticket.plate_number}}</div>
+        <div class="mb-2"><strong>Vehicle Type:</strong> {{ticket.vehicle_type}}</div>
+        <div class="mb-2"><strong>Slot:</strong> {{ticket.slot}}</div>
+        <div class="mb-2"><strong>Entry Time:</strong> {{ticket.entry_time.strftime("%Y-%m-%d %H:%M:%S")}}</div>
+        <div class="mb-2"><strong>Exit Time:</strong> {% if ticket.exit_time %}{{ticket.exit_time.strftime("%Y-%m-%d %H:%M:%S")}}{% else %}Active{% endif %}</div>
+        <div class="mb-2"><strong>Fee:</strong> ₱{{ticket.fee}}</div>
+        <div class="mb-2"><strong>Discount:</strong> {{ticket.discount_type}}</div>
+
+        <!-- QR Code -->
+        <div class="text-center my-3">
+            <canvas id="qrcode"></canvas>
+        </div>
+
+        <!-- Buttons -->
+        {% if not ticket.exit_time %}
+        <a href="/exit/{{ticket.id}}" class="btn btn-warning w-100 mb-2">Exit Vehicle</a>
+        {% endif %}
+        <a href="/gcash/{{ticket.id}}" class="btn btn-success w-100 mb-2">Pay with GCash</a>
+        <a href="/dashboard" class="btn btn-secondary w-100">Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+const qrcodeCanvas = document.getElementById('qrcode');
+QRCode.toCanvas(qrcodeCanvas, 'Ticket ID: {{ticket.id}}, Plate: {{ticket.plate_number}}', function (error) {
+  if (error) console.error(error)
+});
+</script>
+</body>
+</html>
