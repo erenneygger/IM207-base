@@ -13,23 +13,31 @@ tickets = []  # {'id','username','plate_number','vehicle_type','slot','entry_tim
 payments = []
 
 # Parking slots
-car_slots = [False]*10
-motorcycle_slots = [False]*10
+car_slots = [False] * 10
+motorcycle_slots = [False] * 10
 
 # Discounts
 DISCOUNTS = {"student": 0.2, "senior": 0.3, "pwd": 0.5, "none": 0}
 
 
+# =================== HOMEPAGE ===================
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+
 # =================== LOGIN ===================
-@app.route("/", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        uname = request.form["username"]
+        email = request.form["email"]
         pwd = request.form["password"]
-        user = next((u for u in users if u["username"] == uname and u["password"] == pwd), None)
+
+        # Find user by email
+        user = next((u for u in users if u["email"] == email and u["password"] == pwd), None)
 
         if user:
-            session["username"] = uname
+            session["username"] = user["username"]
             session["category"] = user["category"]
 
             if user["category"] == "Admin":
@@ -37,7 +45,7 @@ def login():
             else:
                 return redirect("/ticketing_staff")
 
-        flash("Invalid username or password!", "danger")
+        flash("Invalid email or password!", "danger")
 
     return render_template("login.html")
 
@@ -61,6 +69,10 @@ def register():
             flash("Username already exists!", "danger")
             return redirect("/register")
 
+        if any(u["email"] == email for u in users):
+            flash("Email already registered!", "danger")
+            return redirect("/register")
+
         if category not in ["Admin", "Staff"]:
             flash("Invalid category!", "danger")
             return redirect("/register")
@@ -74,7 +86,7 @@ def register():
         })
 
         flash("Account created successfully! Please login.", "success")
-        return redirect("/")
+        return redirect("/login")
 
     return render_template("register.html")
 
@@ -84,7 +96,7 @@ def register():
 def dashboard():
     if "username" not in session or session.get("category") != "Admin":
         flash("Access denied!", "danger")
-        return redirect("/")
+        return redirect("/login")
 
     total_tickets = len(tickets)
     active = sum(1 for t in tickets if not t.get("exit_time"))
@@ -108,7 +120,7 @@ def dashboard():
 def reports():
     if "username" not in session or session.get("category") != "Admin":
         flash("Access denied!", "danger")
-        return redirect("/")
+        return redirect("/login")
 
     total_income = sum(p["amount"] for p in payments)
     completed = [t for t in tickets if t.get("exit_time")]
@@ -124,14 +136,13 @@ def reports():
 def ticketing_staff():
     if "username" not in session or session.get("category") != "Staff":
         flash("Access denied!", "danger")
-        return redirect("/")
+        return redirect("/login")
 
     if request.method == "POST":
         vehicle_type = request.form["vehicle_type"]
         plate = request.form["plate"]
         discount_type = request.form.get("discount_type", "none")
 
-        # Assign slot
         if vehicle_type == "car":
             try:
                 slot = car_slots.index(False)
@@ -244,7 +255,7 @@ def gcash(ticket_id):
 def active_slots():
     if "username" not in session:
         flash("Access denied!", "danger")
-        return redirect("/")
+        return redirect("/login")
 
     return render_template("active_slots.html",
                            car_slots=car_slots,

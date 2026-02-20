@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #cfd6df;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.container {
+    margin-top: 100px;
+}
+
+.logo {
+    width: 300px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #2f80c1;
+    margin-bottom: 40px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}
+
+.btn {
+    background-color: #2f80c1;
+    color: white;
+    padding: 12px 40px;
+    text-decoration: none;
+    font-size: 20px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: #1f5f91;
+}
